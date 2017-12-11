@@ -1,14 +1,11 @@
-
 from numpy import *
-
 class pcn:
     """ A basic Perceptron"""
-
     def __init__(self, inputs, targets):
         """ Constructor """
         # Set up network size
-        if ndim(inputs) > 1:
-            self.nIn = shape(inputs)[1]
+        if ndim(inputs) > 1: # ndim => number of dimension
+            self.nIn = shape(inputs)[1] # shape in the format (x, y)
         else:
             self.nIn = 1
 
@@ -30,7 +27,7 @@ class pcn:
         change = list(range(self.nData))
 
         for n in range(nIterations):
-            self.outputs = self.pcnfwd(inputs);
+            self.outputs = self.pcnfwd(inputs)
             self.weights += eta * dot(transpose(inputs), targets - self.outputs)
 
             # Randomise order of inputs
@@ -42,7 +39,6 @@ class pcn:
 
     def pcnfwd(self, inputs):
         """ Run the network forward """
-
         outputs = dot(inputs, self.weights)
 
         # Threshold the outputs
