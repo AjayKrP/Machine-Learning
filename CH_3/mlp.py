@@ -15,15 +15,12 @@ class mlp:
         self.beta = beta
         self.momentum = momentum
         self.outtype = outtype
-
         # Initialise network
         self.weights1 = (random.rand(self. nin +1 ,self.nhidden ) -0.5 ) * 2 /sqrt(self.nin)
         self.weights2 = (random.rand(self. nhidden +1 ,self.nout ) -0.5 ) * 2 /sqrt(self.nhidden)
 
     def earlystopping(self ,inputs ,targets ,valid ,validtargets ,eta ,niterations=100):
-
         valid = concatenate((valid ,-ones((shape(valid)[0] ,1))) ,axis=1)
-
         old_val_error1 = 100002
         old_val_error2 = 100001
         new_val_error = 100000
@@ -36,10 +33,12 @@ class mlp:
             old_val_error2 = old_val_error1
             old_val_error1 = new_val_error
             validout = self.mlpfwd(valid)
-            new_val_error = 0.5*sum(( validtargets-validout)**2) print( "Stopped", new_val_error, old_val_error1, old_val_error2)
+            new_val_error = 0.5*sum(( validtargets-validout)**2)
+            print( "Stopped", new_val_error, old_val_error1, old_val_error2)
         return new_val_error
 
-    def mlptrain(self,inputs,targets,eta, niterations) : """ Train the thing """
+    def mlptrain(self,inputs,targets,eta, niterations) :
+        """ Train the thing """
         # Add the inputs that match the bias node
         inputs = concatenate((inputs,-ones((self.ndata,1))),axis=1)
         change = range( self.ndata)
@@ -52,12 +51,13 @@ class mlp:
             self.outputs = self.mlpfwd(inputs)
 
             error = 0.5*sum((targets-self.outputs)**2)
-            if ( mod(n,100)==0) :
+            if ( mod(n,50)==0) :
                 print( "Iteration: ", n, " Error: ", error)
 
-                # Different types of output neurons
+            # Different types of output neurons
             if self.outtype == 'linear':
-                deltao = (targets-self.outputs)/self.ndata elif self.outtype == 'logistic':
+                deltao = (targets-self.outputs)/self.ndata
+            elif self.outtype == 'logistic':
                 deltao = (targets-self.outputs)*self.outputs*(1.0-self.outputs)
             elif self .outtype == 'softmax' :
                 # deltao = (targets-self.outputs)*self.outputs/self.ndata
@@ -65,29 +65,32 @@ class mlp:
             else:
                 print( "error")
 
-            deltah = self.hidden*(1.0-self.hidden)*(dot(deltao,transpose(self.weights2))) updatew1 = eta*(dot (transpose( inputs),deltah[:,:-1])) + self.momentum*updatew1
+            deltah = self.hidden*(1.0-self.hidden)*(dot(deltao,transpose(self.weights2)))
+            updatew1 = eta*(dot (transpose( inputs),deltah[:,:-1])) + self.momentum*updatew1
             updatew2 = eta*( dot( transpose(self.hidden),deltao ) ) + self.momentum*updatew2
             self.weights1 += updatew1
             self. weights2 += updatew2
 
             # Randomise order of inputs
-            random.shuffle(change)
+            #print(list(change))
+            random.shuffle(list(change))
             inputs = inputs[change,:]
             targets = targets[change,:]
 
     def mlpfwd(self,inputs):
         """ Run the network forward """
 
-        self.hidden = dot(inputs,self.weights1);
+        self.hidden = dot(inputs,self.weights1)
         self.hidden = 1.0/(1.0+exp(-self.beta*self.hidden ))
-        self.hidden = concatenate(( self . hidden,-ones((shape ( inputs)[0],1))),axis=1)
+        self.hidden = concatenate(( self.hidden,-ones((shape ( inputs)[0],1))),axis=1) # For bias node
 
-        outputs = dot(self.hidden, self.weights2); # Different types of output neurons
+        outputs = dot(self.hidden, self.weights2) # Different types of output neurons
         if self.outtype == 'linear':
             return outputs
         elif self.outtype == 'logistic':
             return 1.0/(1.0+exp(-self.beta*outputs))
-        elif self.outtype == 'softmax': normalisers = sum (exp ( outputs),axis= 1 )*ones((1,shape(outputs)[0]))
+        elif self.outtype == 'softmax':
+            normalisers = sum (exp ( outputs),axis= 1 )*ones((1,shape(outputs)[0]))
             return transpose(transpose(exp(outputs))/ normalisers)
         else:
             print("error")

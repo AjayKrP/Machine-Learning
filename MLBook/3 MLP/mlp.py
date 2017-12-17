@@ -55,7 +55,7 @@ class mlp:
     
             self.outputs = self.mlpfwd(inputs)
 
-            error = 0.5*sum((targets-self.outputs)**2)
+            error = 0.5*sum((targets-self.outputs)**2) # 1/2*(tk - yk)^2
             if (mod(n,100)==0):
                 print("Iteration: ", n, " Error: ", error)
 
@@ -85,11 +85,11 @@ class mlp:
     def mlpfwd(self,inputs):
         """ Run the network forward """
 
-        self.hidden = dot(inputs,self.weights1);
+        self.hidden = dot(inputs,self.weights1)
         self.hidden = 1.0/(1.0+exp(-self.beta*self.hidden))
         self.hidden = concatenate((self.hidden,-ones((shape(inputs)[0],1))),axis=1)
 
-        outputs = dot(self.hidden,self.weights2);
+        outputs = dot(self.hidden,self.weights2)
 
         # Different types of output neurons
         if self.outtype == 'linear':
@@ -104,7 +104,6 @@ class mlp:
 
     def confmat(self,inputs,targets):
         """Confusion matrix"""
-
         # Add the inputs that match the bias node
         inputs = concatenate((inputs,-ones((shape(inputs)[0],1))),axis=1)
         outputs = self.mlpfwd(inputs)
